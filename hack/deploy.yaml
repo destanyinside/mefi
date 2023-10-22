@@ -1,0 +1,98 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-echo-one
+  labels:
+    app: http-echo-one
+    isgec: "true"
+    gec.io/host: xer-one.ru
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: http-echo-one
+      isgec: "true"
+      gec.io/host: xer-one.ru
+  template:
+    metadata:
+      labels:
+        app: http-echo-one
+        isgec: "true"
+        gec.io/host: xer-one.ru
+    spec:
+      containers:
+        - name: http-echo-one
+          image: jmalloc/echo-server
+          env:
+            - name: LOG_HTTP_BODY
+              value: "true"
+            - name: LOG_HTTP_HEADERS
+              value: "true"
+          ports:
+            - containerPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-echo-two
+  labels:
+    app: http-echo-two
+    isgec: "true"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: http-echo-two
+      isgec: "true"
+      gec.io/host: xer-two.ru
+  template:
+    metadata:
+      labels:
+        app: http-echo-two
+        isgec: "true"
+        gec.io/host: xer-two.ru
+    spec:
+      containers:
+        - name: http-echo-two
+          image: jmalloc/echo-server
+          env:
+            - name: LOG_HTTP_BODY
+              value: "true"
+            - name: LOG_HTTP_HEADERS
+              value: "true"
+          ports:
+            - containerPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-echo-three
+  labels:
+    app: http-echo-three
+    isgec: "true"
+    gec.io/host: xer-three.ru
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: http-echo-three
+      isgec: "true"
+      gec.io/host: xer-three.ru
+  template:
+    metadata:
+      labels:
+        app: http-echo-three
+        isgec: "true"
+        gec.io/host: xer-three.ru
+    spec:
+      containers:
+        - name: http-echo-three
+          image: jmalloc/echo-server
+          env:
+            - name: LOG_HTTP_BODY
+              value: "true"
+            - name: LOG_HTTP_HEADERS
+              value: "true"
+          ports:
+            - containerPort: 8080
