@@ -33,7 +33,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&logOutput, "log-output", "o", "stderr", "Log output")
 	bindPFlag("log-output", "log-output")
 
-	RootCmd.PersistentFlags().StringVarP(&selector, "filter", "f", "", "Label selector. Select only objects matching the label")
+	RootCmd.PersistentFlags().StringVarP(&selector, "filter", "f", "isMefiExport=true", "Label selector. Select only objects matching the label")
 	bindPFlag("filter", "filter")
 
 	RootCmd.PersistentFlags().IntVarP(&resyncInt, "resync-interval", "i", 900, "Full resync interval in seconds (0 to disable)")

@@ -7,10 +7,11 @@ type Clusters struct {
 }
 
 type Configurations struct {
-	Server string `yaml:"server"`
-	Token  string `yaml:"token"`
-	Ca     string `yaml:"CA"`
-	Name   string `yaml:"name"`
+	Url   string `yaml:"url"`
+	Token string `yaml:"token"`
+	Ca    string `yaml:"ca"`
+	Name  string `yaml:"name"`
+	Type  string `yaml:"type"`
 }
 
 type K8sClients struct {

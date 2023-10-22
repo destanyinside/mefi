@@ -5,21 +5,15 @@ metadata:
   name: http-echo-one
   labels:
     app: http-echo-one
-    isgec: "true"
-    gec.io/host: xer-one.ru
 spec:
   replicas: 2
   selector:
     matchLabels:
       app: http-echo-one
-      isgec: "true"
-      gec.io/host: xer-one.ru
   template:
     metadata:
       labels:
         app: http-echo-one
-        isgec: "true"
-        gec.io/host: xer-one.ru
     spec:
       containers:
         - name: http-echo-one
@@ -32,26 +26,35 @@ spec:
           ports:
             - containerPort: 8080
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: http-echo-one
+  labels:
+    isMefiExport: "true"
+spec:
+  selector:
+    app: http-echo-one
+  ports:
+    - protocol: TCP
+      port: 8090
+      targetPort: 8080
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: http-echo-two
   labels:
     app: http-echo-two
-    isgec: "true"
 spec:
   replicas: 2
   selector:
     matchLabels:
       app: http-echo-two
-      isgec: "true"
-      gec.io/host: xer-two.ru
   template:
     metadata:
       labels:
         app: http-echo-two
-        isgec: "true"
-        gec.io/host: xer-two.ru
     spec:
       containers:
         - name: http-echo-two
@@ -64,27 +67,35 @@ spec:
           ports:
             - containerPort: 8080
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: http-echo-two
+  labels:
+    isMefiExport: "true"
+spec:
+  selector:
+    app: http-echo-two
+  ports:
+    - protocol: TCP
+      port: 8091
+      targetPort: 8080
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: http-echo-three
   labels:
     app: http-echo-three
-    isgec: "true"
-    gec.io/host: xer-three.ru
 spec:
   replicas: 2
   selector:
     matchLabels:
       app: http-echo-three
-      isgec: "true"
-      gec.io/host: xer-three.ru
   template:
     metadata:
       labels:
         app: http-echo-three
-        isgec: "true"
-        gec.io/host: xer-three.ru
     spec:
       containers:
         - name: http-echo-three
@@ -96,3 +107,17 @@ spec:
               value: "true"
           ports:
             - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: http-echo-three
+  labels:
+    isMefiExport: "true"
+spec:
+  selector:
+    app: http-echo-three
+  ports:
+    - protocol: TCP
+      port: 8092
+      targetPort: 8080
