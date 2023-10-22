@@ -1,0 +1,43 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: httpbin
+  name: http-echo-one
+  namespace: mefi-system
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 8080
+  sessionAffinity: None
+  type: ClusterIP
+---
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: http-echo-one
+  namespace: mefi-system
+spec:
+  virtualhost:
+    fqdn: foo-basic.bar.com
+  routes:
+    - conditions:
+        - prefix: /
+      services:
+        - name: http-echo-one
+          port: 80
+---
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: httpbin
+#  labels:
+#    app: httpbin
+#spec:
+#  defaultBackend:
+#    service:
+#      name: httpbin
+#      port:
+#        number: 80

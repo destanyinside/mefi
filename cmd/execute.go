@@ -3,14 +3,15 @@ package cmd
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/destanyinside/mefi/pkg/controller"
-	"github.com/destanyinside/mefi/pkg/discovery"
+	"github.com/destanyinside/mefi/pkg/event"
 	"github.com/destanyinside/mefi/pkg/k8s"
+	"github.com/destanyinside/mefi/pkg/localApplier"
+	"github.com/destanyinside/mefi/pkg/localWatcher"
 	"github.com/destanyinside/mefi/pkg/log"
+	"github.com/destanyinside/mefi/pkg/remoteWatcher"
 	"github.com/destanyinside/mefi/pkg/structs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"k8s.io/client-go/dynamic"
 	"os"
 	"os/signal"
 	"syscall"
@@ -31,10 +32,6 @@ var (
 	}
 )
 
-var (
-	restcfg k8s.Interface
-)
-
 func runE(cmd *cobra.Command, args []string) error {
 
 	logger, err := log.New(logLevel, logOutput)
@@ -52,22 +49,29 @@ func runE(cmd *cobra.Command, args []string) error {
 		fmt.Printf("unable to decode into config struct, %v", err)
 	}
 
-	var factory *controller.Factory
-	var discover *discovery.Discover
-	var discoveries []*discovery.Discover
+	var rWatch *remoteWatcher.Watcher
+	var rWatchers []*remoteWatcher.Watcher
+	var apply *localApplier.Applier
+	var lWatch *localWatcher.Watcher
+
+	eventNotifier := event.New()
 
 	for _, i := range config.Clusters {
 		ca, err := base64.StdEncoding.DecodeString(i.Ca)
-		restcfg, err = k8s.New(i.Url, ca, i.Token)
+		restCfg := k8s.New(i.Url, ca, i.Token)
 		if err != nil {
 			return fmt.Errorf("failed to create a client: %v", err)
 		}
-
-		clt := dynamic.NewForConfigOrDie(restcfg.GetRestConfig())
-		k8sCli := &structs.K8sClient{ClusterName: i.Name, DInf: clt}
-		factory = controller.NewFactory(logger, selector, resyncInt)
-		discover = discovery.New(logger, factory, selector, k8sCli).Start()
-		discoveries = append(discoveries, discover)
+		clientSet := &structs.K8sClient{ClusterName: i.Name, ClientSet: restCfg}
+		rWatch = remoteWatcher.NewWatcher(logger, selector, clientSet, eventNotifier)
+		rWatch.Start()
+		if i.Type == structs.Local {
+			apply = localApplier.NewCreator(logger, clientSet, eventNotifier)
+			lWatch = localWatcher.NewWatcher(logger, "isMefiExported=true", clientSet, eventNotifier)
+			apply.Start()
+			lWatch.Start()
+		}
+		rWatchers = append(rWatchers, rWatch)
 	}
 
 	logger.Info(appName, " started")
@@ -76,10 +80,14 @@ func runE(cmd *cobra.Command, args []string) error {
 	signal.Notify(sigterm, syscall.SIGINT)
 	<-sigterm
 
-	for _, i := range discoveries {
-		logger.Info(appName, " stopping")
+	for _, i := range rWatchers {
+		logger.Info("watchers stopping")
 		i.Stop()
 	}
+	apply.Stop()
+	logger.Info("local creator stopping")
+	lWatch.Stop()
+	logger.Info("local watcher stopping")
 	if err != nil {
 		return err
 	}

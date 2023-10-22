@@ -1,53 +1,41 @@
 package k8s
 
 import (
-	"fmt"
-
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	"k8s.io/client-go/kubernetes"
+	"log"
 
 	// Ensure we have auth plugins (gcp, azure, openstack, ...) linked in
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/clientcmd/api"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
-// Interface abstracts access to a concrete Kubernetes rest.Client
-type Interface interface {
-	GetRestConfig() *rest.Config
-}
-
-// RestClient holds a Kubernetes rest client configuration
-type RestClient struct {
-	cfg *rest.Config
-}
-
-// New create a new RestClient
-func New(apiserver string, ca []byte, token string) (*RestClient, error) {
+func New(url string, ca []byte, token string) *kubernetes.Clientset {
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
-	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+	config := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		loadingRules,
 		&clientcmd.ConfigOverrides{
-			ClusterInfo: clientcmdapi.Cluster{
-				Server:                   apiserver,
-				CertificateAuthorityData: ca,
-			},
-			AuthInfo: clientcmdapi.AuthInfo{
+			AuthInfo: api.AuthInfo{
 				Token: token,
 			},
-		},
-	)
+			ClusterInfo: clientcmdapi.Cluster{
+				Server:                   url,
+				CertificateAuthorityData: ca,
+			},
+		})
 
-	restConfig, err := clientConfig.ClientConfig()
+	restConfig, err := config.ClientConfig()
 	if err != nil {
-		return nil, fmt.Errorf("failed to build a restconfig: %v", err)
+		log.Fatalf("failed to build a kubernetes ClientConfig: %v", err)
+		return nil
 	}
 
-	return &RestClient{
-		cfg: restConfig,
-	}, nil
-}
+	clientSet, err := kubernetes.NewForConfig(restConfig)
+	if err != nil {
+		log.Fatalf("failed to build akubernetes  NewForConfig: %v", err)
+		return nil
+	}
 
-// GetRestConfig returns the current rest.Config
-func (r *RestClient) GetRestConfig() *rest.Config {
-	return r.cfg
+	return clientSet
 }
