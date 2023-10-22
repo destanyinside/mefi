@@ -21,7 +21,7 @@ func loadConfigFile() {
 		viper.SetConfigName("config")
 	}
 
-	viper.SetEnvPrefix("MEFC")
+	viper.SetEnvPrefix("MEFI")
 	replacer := strings.NewReplacer("-", "_", ".", "_DOT_")
 	viper.SetEnvKeyReplacer(replacer)
 	viper.AutomaticEnv()

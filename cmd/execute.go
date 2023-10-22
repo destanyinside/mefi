@@ -2,14 +2,14 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/destanyinside/mefi/pkg/k8s"
+	"github.com/destanyinside/mefi/pkg/log"
+	"github.com/destanyinside/mefi/pkg/structs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"mefc/pkg/k8s"
-	"mefc/pkg/log"
-	"mefc/pkg/structs"
 )
 
-const appName = "MEfC"
+const appName = "mefi"
 
 var (
 
