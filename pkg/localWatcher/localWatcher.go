@@ -49,7 +49,8 @@ func (w *Watcher) Start() {
 	namespace := "mefi-system"
 
 	watchFunc := func(options metav1.ListOptions) (watch.Interface, error) {
-		timeOut := int64(60)
+		// TODO() Set timeout in minutes from config
+		timeOut := int64(0)
 		return w.client.ClientSet.CoreV1().Endpoints(namespace).Watch(
 			context.TODO(),
 			metav1.ListOptions{

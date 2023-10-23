@@ -30,6 +30,9 @@ func New(url string, ca []byte, token string) *kubernetes.Clientset {
 		log.Fatalf("failed to build a kubernetes ClientConfig: %v", err)
 		return nil
 	}
+	// TODO() Move qps and burst in config
+	restConfig.QPS = 60
+	restConfig.Burst = 120
 
 	clientSet, err := kubernetes.NewForConfig(restConfig)
 	if err != nil {

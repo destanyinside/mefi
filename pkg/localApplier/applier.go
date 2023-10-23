@@ -50,7 +50,10 @@ func (a *Applier) Start() {
 			case <-a.stopCh:
 				return
 			case ev := <-evChan:
-				a.processEvent(&ev)
+				// TODO() this place may be wrong or something like this
+				go func() {
+					a.processEvent(&ev)
+				}()
 			case <-ticker.C:
 			}
 		}
