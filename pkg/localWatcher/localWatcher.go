@@ -101,23 +101,12 @@ func (w *Watcher) runWorker() {
 		var addresses, notReadyAddresses []corev1.EndpointAddress
 		var ports []corev1.EndpointPort
 		for _, subset := range endpointsByLabel.Items {
-			reset := false
 			for _, address := range subset.Subsets {
 				addresses = append(addresses, address.Addresses...)
 				notReadyAddresses = append(notReadyAddresses, address.NotReadyAddresses...)
-				if len(ports) > 0 {
-					for _, oPort := range address.Ports {
-						for _, nPort := range ports {
-							if oPort.Port == nPort.Port {
-								reset = true
-							}
-						}
-					}
+				if len(ports) == 0 {
+					ports = append(ports, address.Ports...)
 				}
-				if reset {
-					continue
-				}
-				ports = append(ports, address.Ports...)
 			}
 		}
 
