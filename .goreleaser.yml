@@ -1,0 +1,33 @@
+builds:
+  - id: default
+    ldflags: -s -w -X github.com/destanyinside/mefi/cmd.version={{.Version}}
+    env:
+      - CGO_ENABLED=0
+      - GO111MODULE=on
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm
+      - arm64
+      - "386"
+
+before:
+  hooks:
+    - go mod download
+
+release:
+  # publish github releases as draft, so a human can check and validate
+  draft: true
+
+archives:
+  - id: katafygio
+    format: binary
+    builds: [default] # publish easy to curl flag files rather than tarballs
+
+changelog:
+  filters:
+    exclude:
+      - Merge
