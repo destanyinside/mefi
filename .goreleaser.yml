@@ -23,7 +23,7 @@ release:
   draft: true
 
 archives:
-  - id: katafygio
+  - id: mefi
     format: binary
     builds: [default] # publish easy to curl flag files rather than tarballs
 
