@@ -10,7 +10,7 @@
 
 ## How it's work
 1. Create RBAC for [local](https://github.com/destanyinside/mefi/tree/main/deploy/chart/templates/local_rbac.yaml) and [remote](https://github.com/destanyinside/mefi/tree/main/deploy/chart/templates/remote_rbac.yaml) in all clusters
-2. Prepare config for `mefi` ex [config](hack/config.yaml)
+2. Prepare config for `mefi`, example [config](hack/config.yaml)
 3. Run `mefi` in all clusters that need balancing ingress traffic. [Helm chart](https://github.com/destanyinside/mefi/tree/main/deploy/chart)
 4. Create kubernetes service with label `isMefiRemote=true (default, param --remote-filter)` for your pods
 5. `Mefi` watch and replicate all endpoints from remote clusters in local namespace `mefi-system (default, param --mefi-namespace)` with name `<remote_endpoint_name>-<cluster_name>`
