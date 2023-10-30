@@ -31,3 +31,18 @@ changelog:
   filters:
     exclude:
       - Merge
+
+dockers:
+  # TODO when stable, use "docker_manifest" to publish multi-arch images
+  - image_templates:
+      - "bpineau/katafygio:{{ .Tag }}"
+    goos: linux
+    goarch: amd64
+    dockerfile: assets/Dockerfile
+    skip_push: false
+    build_flag_templates:
+      - "--pull"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
