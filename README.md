@@ -3,7 +3,7 @@
 - Without any mash and other things overhead
 
 ## Required
-- Kubernetes clusters without overlay networks
+- Kubernetes clusters without overlay networks. Need RIP or BGP announced pod cidr in network
 - `Mefi` must be running in all clusters that need balancing ingress traffic
 - Endpoints that need to balance ingress traffic must have a label: `default is isMefiRemote=true, param --remote-filter`
 - Endpoints for same application must have same name in all clusters 
