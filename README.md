@@ -1,6 +1,6 @@
 # mefi
-Mefi - Multi-cluster extension for ingress, based on endpoints, which are replicated cluster by cluster
-Without any mash and other things overhead
+- Mefi - Multi-cluster extension for ingress, based on endpoints, which are replicated cluster by cluster
+- Without any mash and other things overhead
 
 ## Required
 - Mefi must be running in all clusters that need balancing ingress traffic
