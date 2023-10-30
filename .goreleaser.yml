@@ -35,7 +35,7 @@ changelog:
 dockers:
   # TODO when stable, use "docker_manifest" to publish multi-arch images
   - image_templates:
-      - "bpineau/katafygio:{{ .Tag }}"
+      - "destanyinside/mefi:{{ .Tag }}"
     goos: linux
     goarch: amd64
     dockerfile: Dockerfile

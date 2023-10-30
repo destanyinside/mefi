@@ -22,7 +22,7 @@ jobs:
 
       - name: Log into Docker registries
         run: |
-          echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u ${{ variables.DOCKER_USER }} --password-stdin
+          echo "${{ secrets.DOCKER_TOKEN }}" | docker login -u ${{ secrets.DOCKER_USER }} --password-stdin
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v5.0.0
