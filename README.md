@@ -12,12 +12,12 @@
 2. Prepare config for `mefi` ex [config](hack/config.yaml)
 3. Run `mefi` in all clusters that need balancing ingress traffic. [Helm chart](https://github.com/destanyinside/mefi/tree/main/deploy/chart)
 4. Create kubernetes service with label `isMefiRemote=true (default, param --remote-filter)` for your pods
-5. `Mefi` replicate all endpoints in namespace `mefi-system (default, param --mefi-namespace)` with name `<remote_endpoint_name>-<cluster_name>`
+5. `Mefi` watch and replicate all endpoints from remote clusters in local namespace `mefi-system (default, param --mefi-namespace)` with name `<remote_endpoint_name>-<cluster_name>`
    + 5.1. Added label `(default isMefiOriginalName, param --original-filter)` with original name
    + 5.2. Added label `(default isMefiLocal=true, param --local-filter)`
-6. `Mefi` watch replicated endpoints with label `(default isMefiLocal=true, param --local-filter)`
+6. `Mefi` watch replicated endpoints in local cluster with label `(default isMefiLocal=true, param --local-filter)`
    + 6.1. `Mefi` receive event with create/update/delete endpoints
    + 6.2. `Mefi` get all endpoints with label `(default isMefiOriginalName, param --original-filter)`
-   + 6.3. Create/update/delete endpoints with merged subsets from replicated endpoints and name based from label value `(default isMefiOriginalName, param --original-filter)`
+   + 6.3. Create/update/delete endpoints in local cluster with merged subsets from replicated endpoints and name based from label value `(default isMefiOriginalName, param --original-filter)`
 7. Prepare your ingress resource (ingress, httpProxy, ingressRoute, etc) and service (preferably without key spec.selector) in namespace `mefi-system (default, param --mefi-namespace)`
 8. Profit! You will take multi-cluster balancing ingress traffic
