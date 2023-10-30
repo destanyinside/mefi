@@ -1,0 +1,132 @@
+deploymentStrategy:
+  type: RollingUpdate
+
+readinessProbe:
+  httpGet:
+    path: /api/health
+    port: 3000
+
+livenessProbe:
+  httpGet:
+    path: /api/health
+    port: 3000
+  initialDelaySeconds: 60
+  timeoutSeconds: 30
+  failureThreshold: 10
+
+resources: {}
+#  limits:
+#    cpu: 200m
+#    memory: 128Mi
+#  requests:
+#    cpu: 100m
+#    memory: 128Mi
+
+# -- Node selector for pods
+nodeSelector: {}
+
+# -- Affinity configuration for pods
+affinity: {}
+
+# -- Tolerations for pods. By default, pods will be scheduled on master/control-plane nodes.
+tolerations: []
+#  - key: node-role.kubernetes.io/master
+#    operator: Exists
+#    effect: NoSchedule
+#  - key: node-role.kubernetes.io/control-plane
+#    operator: Exists
+#    effect: NoSchedule
+
+replicas: 1 # don't change this (till)
+
+priorityClassName: {}
+extraEnv: []
+extraEnvFrom: []
+
+serverPort: 8080
+
+hostNetwork: false
+
+image:
+  registry: qwe
+  tag: 0.0.1
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+# -- hostAliases to add
+hostAliases: []
+#  - ip: 1.2.3.4
+#    hostnames:
+#      - domain.tld
+
+podSecurityContext:
+  runAsUser: 0
+  runAsGroup: 0
+
+containerSecurityContext:
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+  allowPrivilegeEscalation: false
+
+# Extra args for the mefi container.
+extraArgs: []
+# -- Example:
+# -- extraArgs:
+# --   - -ex=ex
+
+# Extra volume mounts together. Corresponds to `extraVolumes`.
+extraVolumeMounts: []
+
+# Extra volumes to be added in addition to those specified under `defaultVolumes`.
+extraVolumes: []
+
+initContainer: []
+  # # -- Specifies whether the init container for setting inotify max user instances is to be enabled
+  # - name: init
+  #   # -- Docker registry, image and tag for the init container image
+  #   image: docker.io/busybox:1.33
+  #   # -- Docker image pull policy for the init container image
+  #   imagePullPolicy: IfNotPresent
+  #   # -- The inotify max user instances to configure
+  #   command:
+  #     - sh
+  #     - -c
+  #     - sysctl -w fs.inotify.max_user_instances=128
+  #   securityContext:
+#     privileged: true
+
+rbac:
+  extraClusterRoleRules: []
+  # - apiGroups: []
+  #   resources: []
+  #   verbs: []
+
+serviceAccount:
+  name:
+  labels: {}
+  annotations: {}
+  autoMount: true
+
+config:
+  clusters:
+    - ca: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJlRENDQVIyZ0F3SUJBZ0lCQURBS0JnZ3Foa2pPUFFRREFqQWpNU0V3SHdZRFZRUUREQmhyTTNNdGMyVnkKZG1WeUxXTmhRREUyT1RjNU5qWTFNemd3SGhjTk1qTXhNREl5TURreU1qRTRXaGNOTXpNeE1ERTVNRGt5TWpFNApXakFqTVNFd0h3WURWUVFEREJock0zTXRjMlZ5ZG1WeUxXTmhRREUyT1RjNU5qWTFNemd3V1RBVEJnY3Foa2pPClBRSUJCZ2dxaGtqT1BRTUJCd05DQUFTbzdiVUxNY1FVZ0g3YWtqZE9BK0plRjhEL1pCcHhnZkZVRlhKMllzdzUKd1JtendISEp0cnBaT0Qwa0xKYmxBWlJlSUFXSzd3Q3gwSS92eGZKdVhPTTRvMEl3UURBT0JnTlZIUThCQWY4RQpCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBZEJnTlZIUTRFRmdRVW9KUEdneUY1ZzZRQWRSQjlESDRtCkRMWnk0eVl3Q2dZSUtvWkl6ajBFQXdJRFNRQXdSZ0loQU9CT282TFVIOFRZeElXemhsS3EyZWp1ZWxuaVNjc28KUVBaMXp1OC9lN2FCQWlFQXRnUFlSZ2I4MGh2YXFaUGVLSWxGZ1dQMm9PeGJOeGQ3Y2o2VGlhbFcxc0U9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+      url: https://192.168.1.128:6443
+      token: eyJhbGciOiJSUzI1NiIsImtpZCI6Ik5sSVBlWFp4dzF4eTFlSllUcTRaTHdPSGE3d1ZHbmJ0UHRlUWh1QUo3X3MifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImFkbWluIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiMDNkZGEzMGYtZTA3MC00NmJlLTkzMGYtYmNhZjU0NzFiNjBjIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50OmRlZmF1bHQ6YWRtaW4ifQ.YSnqKO0yZSARxL_-Zc6iqh1xuYQPZw3AymzYuIL3jIAEVlO-YNUbTyZ_NgHX-cGYXahqCJgCsfVQ0LWgSNGH0JuUMcjZ-1TxY-jISgUJG3S-cxapnLPlXR8cCaDLU0mFiOEarglf7fWOZWjgFt-aJHov0efY6P4KQBK6oqkYCs37TmFsfEhVV9LKAsUsZztUAAPXmXrqoeXkYo2rWUhkuUke6ophwQwVh1wnyrtBfuPJuwNGacDaVsPBWWqlvn6Pj_uS_NxuyfiaK79cQ6LmI76jWdJE-ZAKZXSmxFXDtK8ZW-iDrTBjypoXJ5--h1V4ftFvOI66DpIdiDGzJOluxw
+      name: k8s1
+      type: local
+    - ca: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJkakNDQVIyZ0F3SUJBZ0lCQURBS0JnZ3Foa2pPUFFRREFqQWpNU0V3SHdZRFZRUUREQmhyTTNNdGMyVnkKZG1WeUxXTmhRREUyT1RneU5UVTJOakV3SGhjTk1qTXhNREkxTVRjME1UQXhXaGNOTXpNeE1ESXlNVGMwTVRBeApXakFqTVNFd0h3WURWUVFEREJock0zTXRjMlZ5ZG1WeUxXTmhRREUyT1RneU5UVTJOakV3V1RBVEJnY3Foa2pPClBRSUJCZ2dxaGtqT1BRTUJCd05DQUFTY0dUTEFiTGM2Q1VVbFZnVGFJNk56aWtzS0hZSE02TFl6MVhQRHhvTVkKNG1JbUI2TGxYUXZWbUplY2RUMGxtenNXY0RUazNsQmEwRjZ2TEl1THUvekZvMEl3UURBT0JnTlZIUThCQWY4RQpCQU1DQXFRd0R3WURWUjBUQVFIL0JBVXdBd0VCL3pBZEJnTlZIUTRFRmdRVTlDSjNUZlFCUW91a2ZwN0dkMjdOCjlJUmk3bE13Q2dZSUtvWkl6ajBFQXdJRFJ3QXdSQUlnZXEzeEdLS1BaL0NXV3lqeDhZNGxTTlluME5TNWkwOWgKSUdNSXpNSjVpMm9DSUZ2RU9UWkp6M3JIYzd2Z3JGQVBTeStwQ0Zvamc5M3VqWGNOOGFObFFMODgKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+      url: https://192.168.1.78:6443
+      token: eyJhbGciOiJSUzI1NiIsImtpZCI6IkRLNDZKTjczSktCUmhPOFNjOGxfZ2dKempkdjNGMV9ibU5MWm51V3JGYWMifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6ImFkbWluIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiNGQzYjY5N2EtNzk2NC00Y2JiLThlNjAtY2U4YWNjYTlkNWMxIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50OmRlZmF1bHQ6YWRtaW4ifQ.ifxvybkOym-eUd8gKyn_ZjyhcD3lAEE24QnkCL2ORrXqt6UX2TNS-4nKDNvsbcoe-xYiURUTGWWekJADlSqLpSAcX6W8ZbEa_egV1Neea0gbEVuAiAbJY_qi6qWM7-TK0h6KJPE79VKOZpL1wcgxH5X08xnRT2T30TyDdCLVq2M9hS5lgyQXH5HCamNMhmTdm7-uvfDfK16UivYI5WrGX_cR76HaXZArR6gHfj15BWV6zl4HUmDSFpHt6oFXETbGHq_X9miTwDA6092aKmZbnxPX4cb5hggzlzwIDDHZGGj0BEFQG1jl3bQ6tC1pqHaYomDNxfbSOury3EiOAJXelw
+      name: k8s2
+      type: remote
+
+extraLabels:
+
+revisionHistoryLimit: 10
+annotations: {}
+labels: {}
+podAnnotations: {}
+podLabels: {}

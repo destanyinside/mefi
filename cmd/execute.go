@@ -58,16 +58,16 @@ func runE(cmd *cobra.Command, args []string) error {
 
 	for _, i := range config.Clusters {
 		ca, err := base64.StdEncoding.DecodeString(i.Ca)
-		restCfg := k8s.New(i.Url, ca, i.Token)
+		restCfg := k8s.New(i.Url, ca, i.Token, restConfigQps, restConfigBurst)
 		if err != nil {
 			return fmt.Errorf("failed to create a client: %v", err)
 		}
 		clientSet := &structs.K8sClient{ClusterName: i.Name, ClientSet: restCfg}
-		rWatch = remoteWatcher.NewWatcher(logger, selector, clientSet, eventNotifier)
+		rWatch = remoteWatcher.NewWatcher(logger, remoteLabelSelector, localLabelSelector, originalNameLabelSelector, resyncInt, clientSet, eventNotifier)
 		rWatch.Start()
 		if i.Type == structs.Local {
-			apply = localApplier.NewCreator(logger, clientSet, eventNotifier)
-			lWatch = localWatcher.NewWatcher(logger, "isMefiExported=true", clientSet, eventNotifier)
+			apply = localApplier.NewApplier(logger, mefiNamespace, clientSet, eventNotifier)
+			lWatch = localWatcher.NewWatcher(logger, localLabelSelector, originalNameLabelSelector, resyncInt, mefiNamespace, clientSet, eventNotifier)
 			apply.Start()
 			lWatch.Start()
 		}
@@ -96,7 +96,6 @@ func runE(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// Execute adds all child commands to the root command and sets their flags.
 func Execute() error {
 	return RootCmd.Execute()
 }

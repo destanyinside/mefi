@@ -1,0 +1,12 @@
+apiVersion: v2
+name: mefi
+version: 0.0.1
+appVersion: 0.0.1
+description: Multi-cluster extension for ingress
+keywords:
+  - mefi
+home: https://github.com/destanyinside/mefi
+maintainers:
+  - name: destany
+    email: destany.inside@gmail.com
+    url: https://github.com/destanyinside/mefi

@@ -19,18 +19,20 @@ type logger interface {
 
 type Applier struct {
 	sync.RWMutex
-	logger logger
-	client *structs.K8sClient
-	event  event.Notifier
-	doneCh chan struct{}
-	stopCh chan struct{}
+	logger        logger
+	mefiNamespace string
+	client        *structs.K8sClient
+	event         event.Notifier
+	doneCh        chan struct{}
+	stopCh        chan struct{}
 }
 
-func NewCreator(logger logger, client *structs.K8sClient, event event.Notifier) *Applier {
+func NewApplier(logger logger, mefiNamespace string, client *structs.K8sClient, event event.Notifier) *Applier {
 	return &Applier{
-		logger: logger,
-		client: client,
-		event:  event,
+		logger:        logger,
+		mefiNamespace: mefiNamespace,
+		client:        client,
+		event:         event,
 	}
 }
 
@@ -85,8 +87,7 @@ func (a *Applier) create(clusterName string, object *corev1.Endpoints, endpoints
 		Subsets: object.Subsets,
 	}
 
-	//TODO() move namespace in config
-	_, err := a.client.ClientSet.CoreV1().Endpoints("mefi-system").Create(
+	_, err := a.client.ClientSet.CoreV1().Endpoints(a.mefiNamespace).Create(
 		context.TODO(),
 		newEndpoint,
 		metav1.CreateOptions{})
@@ -110,8 +111,7 @@ func (a *Applier) update(clusterName string, object *corev1.Endpoints, endpoints
 		Subsets: object.Subsets,
 	}
 
-	//TODO() move namespace in config
-	if _, err := a.client.ClientSet.CoreV1().Endpoints("mefi-system").Update(
+	if _, err := a.client.ClientSet.CoreV1().Endpoints(a.mefiNamespace).Update(
 		context.TODO(),
 		newEndpoint,
 		metav1.UpdateOptions{}); err != nil {
@@ -122,8 +122,7 @@ func (a *Applier) update(clusterName string, object *corev1.Endpoints, endpoints
 }
 
 func (a *Applier) delete(clusterName string, endpointsName string) {
-	//TODO() move namespace in config
-	if err := a.client.ClientSet.CoreV1().Endpoints("mefi-system").Delete(
+	if err := a.client.ClientSet.CoreV1().Endpoints(a.mefiNamespace).Delete(
 		context.TODO(),
 		endpointsName,
 		metav1.DeleteOptions{}); err != nil {

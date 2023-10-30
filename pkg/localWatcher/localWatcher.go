@@ -21,21 +21,27 @@ type logger interface {
 
 type Watcher struct {
 	sync.RWMutex
-	logger   logger
-	selector string
-	client   *structs.K8sClient
-	event    event.Notifier
-	doneCh   chan struct{}
-	stopCh   chan struct{}
-	watcher  *toolsWatch.RetryWatcher
+	logger                    logger
+	localLabelSelector        string
+	reSyncInt                 int
+	mefiNamespace             string
+	originalNameLabelSelector string
+	client                    *structs.K8sClient
+	event                     event.Notifier
+	doneCh                    chan struct{}
+	stopCh                    chan struct{}
+	watcher                   *toolsWatch.RetryWatcher
 }
 
-func NewWatcher(logger logger, selector string, client *structs.K8sClient, event event.Notifier) *Watcher {
+func NewWatcher(logger logger, localLabelSelector string, originalNameLabelSelector string, reSyncInt int, mefiNamespace string, client *structs.K8sClient, event event.Notifier) *Watcher {
 	return &Watcher{
-		logger:   logger,
-		selector: selector,
-		client:   client,
-		event:    event,
+		logger:                    logger,
+		localLabelSelector:        localLabelSelector,
+		originalNameLabelSelector: originalNameLabelSelector,
+		reSyncInt:                 reSyncInt,
+		mefiNamespace:             mefiNamespace,
+		client:                    client,
+		event:                     event,
 	}
 }
 
@@ -45,17 +51,13 @@ func (w *Watcher) Start() {
 	w.doneCh = make(chan struct{})
 	w.stopCh = make(chan struct{})
 
-	//TODO() move namespace in config
-	namespace := "mefi-system"
-
 	watchFunc := func(options metav1.ListOptions) (watch.Interface, error) {
-		// TODO() Set timeout in minutes from config
-		timeOut := int64(0)
-		return w.client.ClientSet.CoreV1().Endpoints(namespace).Watch(
+		timeOut := int64(w.reSyncInt)
+		return w.client.ClientSet.CoreV1().Endpoints(w.mefiNamespace).Watch(
 			context.TODO(),
 			metav1.ListOptions{
 				TimeoutSeconds: &timeOut,
-				LabelSelector:  w.selector,
+				LabelSelector:  w.localLabelSelector,
 			})
 	}
 
@@ -83,15 +85,13 @@ func (w *Watcher) runWorker() {
 	for endpoints := range w.watcher.ResultChan() {
 		item := endpoints.Object.(*corev1.Endpoints)
 		var eventType watch.EventType
-		// TODO() move labels and namespace in config
-		endpointsByLabel, err := w.client.ClientSet.CoreV1().Endpoints("mefi-system").List(
+		endpointsByLabel, err := w.client.ClientSet.CoreV1().Endpoints(w.mefiNamespace).List(
 			context.TODO(),
 			metav1.ListOptions{
-				LabelSelector: "originalName=" + item.Labels["originalName"],
+				LabelSelector: w.originalNameLabelSelector + "=" + item.Labels[w.originalNameLabelSelector],
 			})
 		if err != nil {
-			// TODO() move labels in config
-			w.logger.Errorf("Error list endpoints by label %s originalName=", item.Labels["originalName"])
+			w.logger.Errorf("Error list endpoints by label %s=%s", w.originalNameLabelSelector, item.Labels[w.originalNameLabelSelector])
 		}
 		if len(endpointsByLabel.Items) == 0 {
 			eventType = watch.Deleted
@@ -124,11 +124,10 @@ func (w *Watcher) runWorker() {
 
 		w.enqueue(
 			&event.Notification{
-				EventType:   eventType,
-				Endpoints:   &newEndpoint,
-				ClusterName: w.client.ClusterName,
-				// TODO() move labels in config
-				EndpointsName: item.Labels["originalName"],
+				EventType:     eventType,
+				Endpoints:     &newEndpoint,
+				ClusterName:   w.client.ClusterName,
+				EndpointsName: item.Labels[w.originalNameLabelSelector],
 			})
 	}
 }

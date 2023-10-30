@@ -21,21 +21,28 @@ type logger interface {
 
 type Watcher struct {
 	sync.RWMutex
-	logger   logger
-	selector string
-	client   *structs.K8sClient
-	event    event.Notifier
-	doneCh   chan struct{}
-	stopCh   chan struct{}
-	watcher  *toolsWatch.RetryWatcher
+	logger                    logger
+	remoteLabelSelector       string
+	localLabelSelector        string
+	originalNameLabelSelector string
+	resyncInt                 int
+	client                    *structs.K8sClient
+	event                     event.Notifier
+	doneCh                    chan struct{}
+	stopCh                    chan struct{}
+	watcher                   *toolsWatch.RetryWatcher
 }
 
-func NewWatcher(logger logger, selector string, client *structs.K8sClient, event event.Notifier) *Watcher {
+func NewWatcher(logger logger, remoteLabelSelector string, localLabelSelector string, originalNameLabelSelector string,
+	resyncInt int, client *structs.K8sClient, event event.Notifier) *Watcher {
 	return &Watcher{
-		logger:   logger,
-		selector: selector,
-		client:   client,
-		event:    event,
+		logger:                    logger,
+		remoteLabelSelector:       remoteLabelSelector,
+		localLabelSelector:        localLabelSelector,
+		originalNameLabelSelector: originalNameLabelSelector,
+		resyncInt:                 resyncInt,
+		client:                    client,
+		event:                     event,
 	}
 }
 
@@ -48,13 +55,12 @@ func (w *Watcher) Start() {
 	namespace := metav1.NamespaceAll
 
 	watchFunc := func(options metav1.ListOptions) (watch.Interface, error) {
-		// TODO() Set timeout in minutes from config
-		timeOut := int64(0)
+		timeOut := int64(w.resyncInt)
 		return w.client.ClientSet.CoreV1().Endpoints(namespace).Watch(
 			context.TODO(),
 			metav1.ListOptions{
 				TimeoutSeconds: &timeOut,
-				LabelSelector:  w.selector,
+				LabelSelector:  w.remoteLabelSelector,
 			})
 	}
 
@@ -82,9 +88,8 @@ func (w *Watcher) runWorker() {
 	for endpoints := range w.watcher.ResultChan() {
 		item := endpoints.Object.(*corev1.Endpoints)
 		labels := make(map[string]string)
-		// TODO() move labels in config
-		labels["isMefiExported"] = "true"
-		labels["originalName"] = item.Name
+		labels[w.localLabelSelector] = "true"
+		labels[w.originalNameLabelSelector] = item.Name
 		w.enqueue(
 			&event.Notification{
 				EventType:     endpoints.Type,
