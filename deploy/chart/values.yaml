@@ -1,18 +1,18 @@
 deploymentStrategy:
   type: RollingUpdate
 
-readinessProbe:
-  httpGet:
-    path: /api/health
-    port: 3000
+readinessProbe: {}
+#  httpGet:
+#    path: /api/health
+#    port: 3000
 
-livenessProbe:
-  httpGet:
-    path: /api/health
-    port: 3000
-  initialDelaySeconds: 60
-  timeoutSeconds: 30
-  failureThreshold: 10
+livenessProbe: {}
+#  httpGet:
+#    path: /api/health
+#    port: 3000
+#  initialDelaySeconds: 60
+#  timeoutSeconds: 30
+#  failureThreshold: 10
 
 resources: {}
 #  limits:
@@ -48,8 +48,8 @@ serverPort: 8080
 hostNetwork: false
 
 image:
-  registry: qwe
-  tag: 0.0.1
+  registry: destanyinside/mefi
+  tag: v0.0.1
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []

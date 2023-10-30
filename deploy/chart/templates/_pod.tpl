@@ -14,7 +14,7 @@ metadata:
     {{- toYaml . | nindent 8 }}
     {{- end }}
 spec:
-  serviceAccountName: {{ include "mefi.serviceAccountName" . }}
+  serviceAccountName: {{ include "mefi.serviceAccountName" . }}-local
   {{- with .Values.hostNetwork }}
   hostNetwork: {{ . }}
   {{- end }}
