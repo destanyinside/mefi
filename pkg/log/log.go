@@ -14,8 +14,11 @@ const (
 	outputSyslog = "syslog"
 )
 
-// New initialize logrus and return a new logger.
-func New(logLevel string, logOutput string) (*logrus.Logger, error) {
+type LogrusLogger struct {
+	logger *logrus.Logger
+}
+
+func NewLogger(logLevel string, logOutput string) (*LogrusLogger, error) {
 	if logLevel == "" {
 		logLevel = "info"
 	}
@@ -46,5 +49,21 @@ func New(logLevel string, logOutput string) (*logrus.Logger, error) {
 		log.Hooks.Add(hook)
 	}
 
-	return log, nil
+	return &LogrusLogger{logger: log}, nil
+}
+
+func (l *LogrusLogger) Infof(format string, args ...interface{}) {
+	l.logger.Logf(logrus.InfoLevel, format, args...)
+}
+
+func (l *LogrusLogger) Errorf(format string, args ...interface{}) {
+	l.logger.Logf(logrus.ErrorLevel, format, args...)
+}
+
+func (l *LogrusLogger) Debugf(format string, args ...interface{}) {
+	l.logger.Logf(logrus.DebugLevel, format, args...)
+}
+
+func (l *LogrusLogger) Fatalf(format string, args ...interface{}) {
+	l.logger.Logf(logrus.FatalLevel, format, args...)
 }

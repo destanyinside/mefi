@@ -1,14 +1,14 @@
 package k8s
 
 import (
+	"github.com/destanyinside/mefi/pkg/log"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
-	"log"
 )
 
-func New(url string, ca []byte, token string, qps float32, burst int) *kubernetes.Clientset {
+func New(url string, ca []byte, token string, log *log.LogrusLogger, qps float32, burst int) *kubernetes.Clientset {
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
 	config := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		loadingRules,

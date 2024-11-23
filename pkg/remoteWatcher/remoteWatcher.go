@@ -3,6 +3,7 @@ package remoteWatcher
 import (
 	"context"
 	"github.com/destanyinside/mefi/pkg/event"
+	"github.com/destanyinside/mefi/pkg/log"
 	"github.com/destanyinside/mefi/pkg/structs"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -14,14 +15,9 @@ import (
 	"time"
 )
 
-type logger interface {
-	Infof(format string, args ...interface{})
-	Errorf(format string, args ...interface{})
-}
-
 type Watcher struct {
 	sync.RWMutex
-	logger                    logger
+	logger                    *log.LogrusLogger
 	remoteLabelSelector       string
 	localLabelSelector        string
 	originalNameLabelSelector string
@@ -33,7 +29,7 @@ type Watcher struct {
 	watcher                   *toolsWatch.RetryWatcher
 }
 
-func NewWatcher(logger logger, remoteLabelSelector string, localLabelSelector string, originalNameLabelSelector string,
+func NewWatcher(logger *log.LogrusLogger, remoteLabelSelector string, localLabelSelector string, originalNameLabelSelector string,
 	resyncInt int, client *structs.K8sClient, event event.Notifier) *Watcher {
 	return &Watcher{
 		logger:                    logger,

@@ -32,10 +32,10 @@ func init() {
 	defaultCfg := "/etc/gce/" + appName + ".yaml"
 	RootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", defaultCfg, "Configuration file")
 
-	RootCmd.PersistentFlags().Float32VarP(&restConfigQps, "k8s-rest-config-qps", "q", 5, "Indicates the maximum QPS to the master from this client")
+	RootCmd.PersistentFlags().Float32VarP(&restConfigQps, "k8s-rest-config-qps", "q", 500, "Indicates the maximum QPS to the master from this client")
 	bindPFlag("k8s-rest-config-qps", "k8s-rest-config-qps")
 
-	RootCmd.PersistentFlags().IntVarP(&restConfigBurst, "k8s-rest-config-burst", "b", 10, "Maximum burst for throttle to the master from this client")
+	RootCmd.PersistentFlags().IntVarP(&restConfigBurst, "k8s-rest-config-burst", "b", 1000, "Maximum burst for throttle to the master from this client")
 	bindPFlag("k8s-rest-config-burst", "k8s-rest-config-burst")
 
 	RootCmd.PersistentFlags().StringVarP(&logLevel, "log-level", "v", "info", "Log level")

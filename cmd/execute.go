@@ -34,13 +34,13 @@ var (
 
 func runE(cmd *cobra.Command, args []string) error {
 
-	logger, err := log.New(logLevel, logOutput)
+	logger, err := log.NewLogger(logLevel, logOutput)
 
 	if err != nil {
 		return fmt.Errorf("failed to create a logger: %v", err)
 	}
 
-	logger.Info(appName, " starting")
+	logger.Infof("%s starting", appName)
 
 	config := &structs.Clusters{}
 
@@ -58,7 +58,7 @@ func runE(cmd *cobra.Command, args []string) error {
 
 	for _, i := range config.Clusters {
 		ca, err := base64.StdEncoding.DecodeString(i.Ca)
-		restCfg := k8s.New(i.Url, ca, i.Token, restConfigQps, restConfigBurst)
+		restCfg := k8s.New(i.Url, ca, i.Token, logger, restConfigQps, restConfigBurst)
 		if err != nil {
 			return fmt.Errorf("failed to create a client: %v", err)
 		}
@@ -74,24 +74,24 @@ func runE(cmd *cobra.Command, args []string) error {
 		rWatchers = append(rWatchers, rWatch)
 	}
 
-	logger.Info(appName, " started")
+	logger.Infof("%s started", appName)
 	sigterm := make(chan os.Signal, 1)
 	signal.Notify(sigterm, syscall.SIGTERM)
 	signal.Notify(sigterm, syscall.SIGINT)
 	<-sigterm
 
 	for _, i := range rWatchers {
-		logger.Info("watchers stopping")
+		logger.Infof("watchers stopping")
 		i.Stop()
 	}
 	apply.Stop()
-	logger.Info("local creator stopping")
+	logger.Infof("local creator stopping")
 	lWatch.Stop()
-	logger.Info("local watcher stopping")
+	logger.Infof("local watcher stopping")
 	if err != nil {
 		return err
 	}
-	logger.Info(appName, " stopped")
+	logger.Infof(appName, " stopped")
 
 	return nil
 }

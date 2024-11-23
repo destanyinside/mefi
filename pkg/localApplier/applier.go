@@ -3,6 +3,7 @@ package localApplier
 import (
 	"context"
 	"github.com/destanyinside/mefi/pkg/event"
+	"github.com/destanyinside/mefi/pkg/log"
 	"github.com/destanyinside/mefi/pkg/structs"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -12,14 +13,9 @@ import (
 	"time"
 )
 
-type logger interface {
-	Infof(format string, args ...interface{})
-	Errorf(format string, args ...interface{})
-}
-
 type Applier struct {
 	sync.RWMutex
-	logger        logger
+	logger        *log.LogrusLogger
 	mefiNamespace string
 	client        *structs.K8sClient
 	event         event.Notifier
@@ -27,7 +23,7 @@ type Applier struct {
 	stopCh        chan struct{}
 }
 
-func NewApplier(logger logger, mefiNamespace string, client *structs.K8sClient, event event.Notifier) *Applier {
+func NewApplier(logger *log.LogrusLogger, mefiNamespace string, client *structs.K8sClient, event event.Notifier) *Applier {
 	return &Applier{
 		logger:        logger,
 		mefiNamespace: mefiNamespace,
