@@ -91,7 +91,7 @@ func runE(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	logger.Infof(appName, " stopped")
+	logger.Infof("stopped %s", appName)
 
 	return nil
 }
